@@ -1282,8 +1282,8 @@ updateOverlayFilter();
       icon = L.divIcon({
         className: 'icon',
         html: iconHtml,
-        iconSize: [3, 3],      // 👈 спец. размер для KR
-        iconAnchor: [3, 9], // 👈 спец. якорь для KR
+        iconSize: [30, 30], // общий размер
+        iconAnchor: [10, 10],
     });
 } else if (iconClass === 'zl') {
   const objectId2 = getNextObjectIdBlue();
@@ -1300,8 +1300,8 @@ updateOverlayFilter();
               icon = L.divIcon({
         className: 'icon',
         html: iconHtml,
-        iconSize: [6.5, 6.5], // общий размер
-        iconAnchor: [10, 10],
+        iconSize: [30, 30], // общий размер
+        iconAnchor: [10, 20],
     });
 } else if (iconClass === 'blue-id') {
   const objectId2 = getNextObjectIdBlue();
@@ -1319,7 +1319,7 @@ updateOverlayFilter();
         className: 'icon',
         html: iconHtml,
         iconSize: [30, 30], // общий размер
-        iconAnchor: [10, 10],
+        iconAnchor: [10, 20],
     });
 } else {
     const iconTypes = {
