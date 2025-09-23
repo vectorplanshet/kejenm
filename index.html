@@ -610,21 +610,24 @@ body {
       pointer-events: auto;
     }
 
-    .dynamic-zoom button {
-      width: 60px;
-      height: 60px;
-      background: white;
-      border: none;
-      cursor: pointer;
-      font-size: 48px;    /* увеличенный шрифт */
-      padding: 0;
-      margin: 0;
-      line-height: 60px;  /* вертикальное центрирование */
-      text-align: center;
-      border-radius: 0;
-      box-shadow: none;
-    }
+.dynamic-zoom button {
+  width: 60px;
+  height: 60px;
+  background: white;
+  border: none;
+  cursor: pointer;
+  font-size: 48px;
+  padding: 0;
+  margin: 0;
+  line-height: 60px;
+  text-align: center;
+  border-radius: 0;
+  box-shadow: none;
 
+  color: black; /* цвет текста */
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
+}
     </style>
 </head>
 <body>
@@ -1346,7 +1349,7 @@ const randomNumber = Math.floor(Math.random() * 200) + 1;
         className: 'icon',
         html: iconHtml,
         iconSize: [30, 30], // общий размер
-        iconAnchor: [10, 10],
+        iconAnchor: [10, 20],
     });
 }
 }
