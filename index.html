@@ -1763,36 +1763,70 @@ function getRlsForObject(objectId, iconUrl) {
     return rlsOptions[randomIndex];
 }
 
-let touchTimer;
+const LONG_PRESS_MS = 700;
+let pressStart = 0;
+let pressTimer;
 
-map.on('contextmenu', function (e) {
-    const coords = `${e.latlng.lat}, ${e.latlng.lng}`;
-    navigator.clipboard.writeText(coords).then(() => {
-        alert(`Координаты скопированы: ${coords}`);
-    }).catch(err => {
-        console.error('Ошибка копирования координат:', err);
-    });
+function copyText(text) {
+  // HTTPS обязателен для Clipboard API
+  if (navigator.clipboard && window.isSecureContext) {
+    return navigator.clipboard.writeText(text);
+  }
+  // Фолбэк через textarea для iOS/старых браузеров
+  return new Promise((resolve, reject) => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.top = '-1000px';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try {
+      const ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      ok ? resolve() : reject(new Error('execCommand copy failed'));
+    } catch (err) {
+      document.body.removeChild(ta);
+      reject(err);
+    }
+  });
+}
+
+// ПК/Android — правый клик / долгий тап (если доступен)
+map.on('contextmenu', (e) => {
+  const coords = `${e.latlng.lat}, ${e.latlng.lng}`;
+  copyText(coords)
+    .then(() => alert(`Координаты скопированы: ${coords}`))
+    .catch(err => console.error('Ошибка копирования:', err));
 });
 
-map.on('touchstart', function (e) {
-    // Запускаем таймер, чтобы определить долгий клик
-    touchTimer = setTimeout(() => {
-        const latlng = e.latlng;
-        const coords = `${latlng.lat}, ${latlng.lng}`;
-
-        navigator.clipboard.writeText(coords).then(() => {
-            alert(`Координаты скопированы: ${coords}`);
-        }).catch(err => {
-            console.error('Ошибка копирования координат:', err);
-        });
-    }, 800); // Время задержки в миллисекундах (800 мс = долгий клик)
-
+// iOS — отслеживаем длительность, копируем на touchend
+map.on('touchstart', (e) => {
+  pressStart = Date.now();
+  // опционально блокируем системное меню
+  if (e.originalEvent) e.originalEvent.preventDefault?.();
+  clearTimeout(pressTimer);
+  pressTimer = setTimeout(() => {}, LONG_PRESS_MS); // просто метка времени
 });
 
-map.on('touchend', function (e) {
-    // Если палец поднят до завершения задержки, отменяем таймер
-    clearTimeout(touchTimer);
+map.on('touchend', (e) => {
+  clearTimeout(pressTimer);
+  const duration = Date.now() - pressStart;
+  if (duration >= LONG_PRESS_MS) {
+    // Берём координату из touch события, надёжно для iOS
+    let latlng = e.latlng;
+    const touch = e.originalEvent?.changedTouches?.[0];
+    if (!latlng && touch) latlng = map.mouseEventToLatLng(touch);
+
+    if (latlng) {
+      const coords = `${latlng.lat}, ${latlng.lng}`;
+      copyText(coords)
+        .then(() => alert(`Координаты скопированы: ${coords}`))
+        .catch(err => console.error('Ошибка копирования:', err));
+    }
+  }
 });
+
 
 fetch("front.json")
   .then(response => response.json())
